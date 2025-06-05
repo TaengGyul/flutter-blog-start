@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       // context가 없는 곳에서 context를 사용할 수 있는 방법
       debugShowCheckedModeBanner: false,
-      home: SplashPage(),
+      home: SplashPage(), // 리버팟으로 짤 거임, Splash 안 씀
       routes: {
         "/login": (context) => const LoginPage(),
         "/join": (context) => const JoinPage(),

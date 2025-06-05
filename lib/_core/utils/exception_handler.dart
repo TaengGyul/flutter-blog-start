@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog/main.dart';
+// 지금 몰라도 됨
 
 class ExceptionHandler {
   static void handleException(dynamic exception, StackTrace stackTrace) {
