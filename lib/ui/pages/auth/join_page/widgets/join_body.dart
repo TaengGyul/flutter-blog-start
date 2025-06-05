@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blog/_core/constants/size.dart';
-import 'package:flutter_blog/ui/widgets/custom_auth_text_form_field.dart';
-import 'package:flutter_blog/ui/widgets/custom_elavated_button.dart';
 import 'package:flutter_blog/ui/widgets/custom_logo.dart';
-import 'package:flutter_blog/ui/widgets/custom_text_button.dart';
-
 import 'join_form.dart';
 
 class JoinBody extends StatelessWidget {

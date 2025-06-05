@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blog/_core/constants/size.dart';
-import 'package:flutter_blog/ui/pages/auth/join_page/join_fm.dart';
+import 'package:flutter_blog/data/gvm/session_gvm.dart';
+import 'package:flutter_blog/ui/pages/auth/login_page/login_fm.dart';
 import 'package:flutter_blog/ui/widgets/custom_auth_text_form_field.dart';
 import 'package:flutter_blog/ui/widgets/custom_elavated_button.dart';
 import 'package:flutter_blog/ui/widgets/custom_text_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
-import '../../../../../data/gvm/session_gvm.dart';
-
-class JoinForm extends ConsumerWidget {
+// 1번 Form 태그로 묶기
+class LoginForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    JoinFM fm = ref.read(joinProvider.notifier);
-    JoinModel model = ref.watch(joinProvider);
+    LoginFM fm = ref.read(loginProvider.notifier);
+    LoginModel model = ref.watch(loginProvider);
 
-    print("창고 state : ${model}");
+    Logger().d(model);
 
     return Form(
       child: Column(
@@ -28,14 +29,6 @@ class JoinForm extends ConsumerWidget {
           ),
           const SizedBox(height: mediumGap),
           CustomAuthTextFormField(
-            title: "Email",
-            errorText: model.emailError,
-            onChanged: (value) {
-              fm.email(value);
-            },
-          ),
-          const SizedBox(height: mediumGap),
-          CustomAuthTextFormField(
             title: "Password",
             errorText: model.passwordError,
             obscureText: true,
@@ -45,19 +38,16 @@ class JoinForm extends ConsumerWidget {
           ),
           const SizedBox(height: largeGap),
           CustomElevatedButton(
-            text: "회원가입",
-            click: () async {
-              ref.read(sessionProvider.notifier).join(
-                    model.username,
-                    model.email,
-                    model.password,
-                  );
+            text: "로그인",
+            click: () {
+              // 위임 하기 (+ .trim() 넣어주면 공백 자동으로 없애줌)
+              ref.read(sessionProvider.notifier).login(model.username, model.password);
             },
           ),
           CustomTextButton(
-            text: "로그인 페이지로 이동",
+            text: "회원가입 페이지로 이동",
             click: () {
-              Navigator.pushNamed(context, "/login");
+              Navigator.pushNamed(context, "/join");
             },
           ),
         ],
