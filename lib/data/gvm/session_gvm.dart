@@ -3,10 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blog/_core/utils/my_http.dart';
 import 'package:flutter_blog/_core/utils/validator_util.dart';
+import 'package:flutter_blog/data/model/user.dart';
 import 'package:flutter_blog/data/repository/user_repository.dart';
 import 'package:flutter_blog/main.dart';
 import 'package:flutter_blog/ui/pages/auth/join_page/join_fm.dart';
 import 'package:flutter_blog/ui/pages/auth/login_page/login_fm.dart';
+import 'package:flutter_blog/ui/pages/post/list_page/post_list_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
@@ -69,34 +71,47 @@ class SessionGVM extends Notifier<SessionModel> {
       return;
     }
 
-    // 3. 토큰을 디바이스 저장
-    await secureStorage.write(key: "accessToken", value: body["response"]["accessToken"]);
+    // 3. 파싱
+    User user = User.fromMap(body["response"]);
 
-    // 4. 세션모델 갱신
-    state = SessionModel(
-        id: body["response"]["id"],
-        username: body["response"]["username"],
-        imgUrl: body["response"]["imgUrl"],
-        accessToken: body["response"]["accessToken"],
-        isLogin: true);
+    // 4. 토큰을 디바이스 저장 (저장하는 이유 : 앱을 다시 시작할 때, 자동 로그인 하려고)
+    await secureStorage.write(key: "accessToken", value: user.accessToken);
 
-    // 5. dio의 header에 토큰 세팅
-    dio.options.headers["Authorization"] = body["response"]["accessToken"];
+    // 5. 세션모델 갱신
+    state = SessionModel(user: user, isLogin: true);
 
-    // 6. 게시글 목록 페이지 이동
+    // 6. dio의 header에 토큰 세팅 (Bearer 이거 붙어 있음)
+    dio.options.headers["Authorization"] = user.accessToken;
+
+    // 7. 게시글 목록 페이지 이동
     Navigator.pushNamed(mContext, "/post/list");
   }
 
-  Future<void> logout() async {}
+  Future<void> logout() async {
+    // 1. 토큰 디바이스 제거
+    await secureStorage.delete(key: "accessToken");
+
+    // 2. 세션모델 초기화
+    state = SessionModel();
+
+    // 3. dio 세팅 제거
+    dio.options.headers["Authorization"] = "";
+
+    // 4. login 페이지 이동
+    scaffoldKey.currentState!.openEndDrawer();
+    Navigator.pushNamed(mContext, "/login");
+  }
 }
 
-/// 3. 창고 데이터 타입
+/// 3. 창고 데이터 타입 (불변 아님)
 class SessionModel {
-  int? id;
-  String? username;
-  String? imgUrl;
-  String? accessToken;
+  User? user;
   bool? isLogin;
 
-  SessionModel({this.id, this.username, this.imgUrl, this.accessToken, this.isLogin = false});
+  SessionModel({this.user, this.isLogin = false});
+
+  @override
+  String toString() {
+    return 'SessionModel{user: $user, isLogin: $isLogin}';
+  }
 }
